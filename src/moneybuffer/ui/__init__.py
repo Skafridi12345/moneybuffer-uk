@@ -2,12 +2,14 @@
 
 from moneybuffer.ui.theme import (
     action_cards_html,
+    adjust_banner_html,
     band_comparison_html,
     brand_header,
     comparison_cards_html,
     cross_alert_html,
     driver_bars_html,
     explain_bullets_html,
+    gauge_hero_html,
     gauge_html,
     hint_html,
     inject_brand_css,
@@ -27,12 +29,14 @@ from moneybuffer.ui.theme import (
 
 __all__ = [
     "action_cards_html",
+    "adjust_banner_html",
     "band_comparison_html",
     "brand_header",
     "comparison_cards_html",
     "cross_alert_html",
     "driver_bars_html",
     "explain_bullets_html",
+    "gauge_hero_html",
     "gauge_html",
     "hint_html",
     "inject_brand_css",

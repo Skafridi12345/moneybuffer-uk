@@ -853,6 +853,177 @@ def gauge_html(score: float, band: str, narrative: str = "") -> str:
 
 
 # ---------------------------------------------------------------------------
+# Gauge hero card (Option D — two-column with 2×2 KPI grid)
+# ---------------------------------------------------------------------------
+
+
+def gauge_hero_html(scored_row: Any) -> str:
+    """Return HTML for the premium two-column gauge hero card.
+
+    Left column: animated SVG gauge with score + band pill.
+    Right column: 2×2 KPI grid (Emergency Runway, Monthly Surplus,
+    Debt Service Ratio, Essential Spending Ratio).
+    """
+    score = _safe_float(scored_row, "resilience_score")
+    band = str(scored_row["risk_band"]) if "risk_band" in scored_row else "Watch"
+
+    cx, cy, r = 85.0, 79.0, 55.0
+    bg_d = _arc_d(cx, cy, r, 135.0, 270.0)
+    fill_sweep = max((score / 100.0) * 270.0, 0.5)
+    fill_d = _arc_d(cx, cy, r, 135.0, fill_sweep)
+
+    if score >= 70:
+        arc_color = "#00A87A"
+    elif score >= 50:
+        arc_color = "#F5A623"
+    else:
+        arc_color = "#C0392B"
+
+    bg_badge, fg_badge = _BAND_CFG.get(band, ("#FFF3DC", "#8A5E00"))
+
+    # KPI values
+    runway = _safe_float(scored_row, "emergency_runway_months")
+    surplus = _safe_float(scored_row, "monthly_surplus")
+    dsr = _safe_float(scored_row, "debt_service_ratio")
+    esr = _safe_float(scored_row, "essential_spending_ratio")
+
+    def _kpi_color(val: float, good: float, bad: float) -> str:
+        """Return a semantic colour — green/amber/red relative to thresholds."""
+        if good > bad:  # higher is better (runway, surplus)
+            if val >= good:
+                return "#00A87A"
+            if val >= bad:
+                return "#D97706"
+            return "#C0392B"
+        else:  # lower is better (ratios)
+            if val <= good:
+                return "#00A87A"
+            if val <= bad:
+                return "#D97706"
+            return "#C0392B"
+
+    runway_c = _kpi_color(runway, 3.0, 1.0)
+    surplus_c = _kpi_color(surplus, 200.0, 0.0)
+    dsr_c = _kpi_color(dsr, 0.25, 0.40)
+    esr_c = _kpi_color(esr, 0.50, 0.65)
+
+    def _tile(label: str, value: str, color: str) -> str:
+        return (
+            '<div style="background:#F4F7F5;border:1px solid #DDE8E3;'
+            "border-radius:10px;padding:12px 14px;"
+            'box-shadow:0 1px 2px rgba(0,0,0,0.03)">'
+            f'<div style="font-size:9.5px;font-weight:700;'
+            f"text-transform:uppercase;letter-spacing:0.09em;"
+            f'color:#6B8A7F;margin-bottom:5px">{label}</div>'
+            f'<div style="font-size:19px;font-weight:700;'
+            f'color:{color};letter-spacing:-0.02em;line-height:1">'
+            f"{value}</div>"
+            "</div>"
+        )
+
+    tiles = (
+        _tile(
+            "Emergency Runway",
+            f"{runway:.1f} mo",
+            runway_c,
+        )
+        + _tile(
+            "Monthly Surplus",
+            f"£{surplus:+,.0f}",
+            surplus_c,
+        )
+        + _tile(
+            "Debt Service Ratio",
+            f"{dsr * 100:.0f}%",
+            dsr_c,
+        )
+        + _tile(
+            "Essential Spending",
+            f"{esr * 100:.0f}%",
+            esr_c,
+        )
+    )
+
+    return (
+        '<div style="background:#fff;border:1px solid #DDE8E3;'
+        "border-radius:18px;padding:24px 28px;margin-bottom:18px;"
+        "display:grid;"
+        "grid-template-columns:auto 1px 1fr;"
+        "gap:0 28px;align-items:center;"
+        'box-shadow:0 2px 14px rgba(0,0,0,0.07)">'
+        # ── Left: gauge SVG ───────────────────────────────────────────────
+        '<div style="display:flex;flex-direction:column;'
+        'align-items:center;flex-shrink:0">'
+        '<div style="position:relative;width:170px;height:138px">'
+        '<svg width="170" height="138" viewBox="0 0 170 138">'
+        "<defs>"
+        '<filter id="mbHeroGlow" x="-20%" y="-20%" width="140%" height="140%">'
+        '<feGaussianBlur stdDeviation="3.5" result="blur"/>'
+        "<feMerge>"
+        '<feMergeNode in="blur"/>'
+        '<feMergeNode in="SourceGraphic"/>'
+        "</feMerge>"
+        "</filter>"
+        "</defs>"
+        f'<path d="{bg_d}" stroke="#EEF3F0" stroke-width="16"'
+        ' fill="none" stroke-linecap="round"/>'
+        f'<path d="{fill_d}" stroke="{arc_color}" stroke-width="16"'
+        ' fill="none" stroke-linecap="round" filter="url(#mbHeroGlow)"/>'
+        "</svg>"
+        '<div style="position:absolute;inset:0;display:flex;'
+        "flex-direction:column;align-items:center;"
+        'justify-content:center;padding-top:6px">'
+        f'<div style="font-size:40px;font-weight:800;color:#0D2218;'
+        f'letter-spacing:-0.04em;line-height:1">{score:.0f}</div>'
+        f'<div style="font-size:12px;color:{arc_color};font-weight:600;'
+        f'margin-top:2px">/ 100</div>'
+        "</div>"
+        "</div>"
+        '<div style="font-size:10.5px;font-weight:700;color:#6B8A7F;'
+        "text-transform:uppercase;letter-spacing:0.09em;"
+        'margin:8px 0 7px;text-align:center">Financial Resilience</div>'
+        '<div style="display:inline-flex;align-items:center;gap:6px;'
+        f"padding:5px 14px;border-radius:100px;font-size:12px;font-weight:600;"
+        f"background:{bg_badge};color:{fg_badge};"
+        f'border:1px solid {fg_badge}22">'
+        f'<span style="width:7px;height:7px;border-radius:50%;'
+        f'background:{fg_badge};display:inline-block"></span>'
+        f"{band}"
+        "</div>"
+        "</div>"
+        # ── Vertical divider ──────────────────────────────────────────────
+        '<div style="height:100%;min-height:130px;'
+        'background:#DDE8E3;align-self:stretch"></div>'
+        # ── Right: 2×2 KPI grid ───────────────────────────────────────────
+        '<div style="display:grid;grid-template-columns:1fr 1fr;'
+        'gap:10px;align-content:center">' + tiles + "</div>"
+        "</div>"
+    )
+
+
+def adjust_banner_html(selected_type: str) -> str:
+    """Return HTML for the score-adjustment info banner.
+
+    Tells the user they are viewing a demo profile and how to edit inputs.
+    """
+    return (
+        '<div style="background:#E8F2FD;border:1px solid #BAD7F5;'
+        "border-left:3px solid #1D5FAE;border-radius:10px;"
+        "padding:11px 16px;font-size:13px;color:#1D406B;"
+        "margin-bottom:14px;display:flex;gap:10px;"
+        'align-items:flex-start">'
+        '<span style="flex-shrink:0;font-size:15px;line-height:1.5">ℹ️</span>'
+        '<span style="line-height:1.6">'
+        f"Viewing the <strong>{selected_type}</strong> demo profile — "
+        "fictional data for illustration only. "
+        "Tick <strong>✏️ Edit my inputs</strong> below to enter your own "
+        "income, bills and savings and see your personalised score."
+        "</span>"
+        "</div>"
+    )
+
+
+# ---------------------------------------------------------------------------
 # Score driver progress bars
 # ---------------------------------------------------------------------------
 
@@ -1266,11 +1437,7 @@ def nav_bar_html() -> str:
     links = "".join(
         f'<a href="#{anchor}">{label}</a>' for anchor, label in _NAV_SECTIONS
     )
-    return (
-        f'<div class="mb-nav-wrap">'
-        f'<div class="mb-nav-bar">{links}</div>'
-        f"</div>"
-    )
+    return f'<div class="mb-nav-wrap"><div class="mb-nav-bar">{links}</div></div>'
 
 
 def section_anchor(anchor_id: str) -> None:

@@ -57,13 +57,14 @@ from moneybuffer.stress_testing.scenario_engine import (  # noqa: E402
 )
 from moneybuffer.ui.theme import (  # noqa: E402
     action_cards_html,
+    adjust_banner_html,
     band_comparison_html,
     brand_header,
     comparison_cards_html,
     cross_alert_html,
     driver_bars_html,
     explain_bullets_html,
-    gauge_html,
+    gauge_hero_html,
     hint_html,
     inject_brand_css,
     nav_bar_html,
@@ -237,13 +238,22 @@ _INPUT_GROUPS: list[tuple[str, list[str]]] = [
     ),
     (
         "Living costs",
-        ["groceries", "transport", "insurance",
-         "subscriptions", "discretionary_spending"],
+        [
+            "groceries",
+            "transport",
+            "insurance",
+            "subscriptions",
+            "discretionary_spending",
+        ],
     ),
     (
         "Debts & savings",
-        ["debt_repayments", "savings_balance",
-         "overdraft_balance", "credit_card_balance"],
+        [
+            "debt_repayments",
+            "savings_balance",
+            "overdraft_balance",
+            "credit_card_balance",
+        ],
     ),
 ]
 
@@ -614,28 +624,17 @@ def build_text_report(
 brand_header(__version__)
 
 # ---------------------------------------------------------------------------
-# Inline controls — household selector + manual edit
+# Inline controls — household selector only (edit checkbox moved to section 1)
 # ---------------------------------------------------------------------------
 
 demo_households = load_demo_households()
 
-ctrl_left, ctrl_right = st.columns([3, 1])
-with ctrl_left:
-    selected_type = st.selectbox(
-        "Demo household profile",
-        HOUSEHOLD_TYPES,
-    )
-with ctrl_right:
-    manual_edit = st.checkbox("✏️ Manually edit inputs", value=False)
+selected_type = st.selectbox(
+    "Demo household profile",
+    HOUSEHOLD_TYPES,
+)
 
 base_row = selected_household_row(demo_households, selected_type)
-household_row = editable_household(base_row, manual_edit)
-household_df = row_to_frame(household_row)
-
-scored_df = calculate_resilience_score(
-    calculate_resilience_features(household_df),
-)
-scored_row = scored_df.iloc[0]
 
 # ---------------------------------------------------------------------------
 # Sticky navigation bar
@@ -653,6 +652,26 @@ if True:  # scope block
         "Educational resilience snapshot for the selected household.",
     )
 
+    # ── Hero gauge placeholder — filled after scores are computed ─────────
+    hero_slot = st.empty()
+
+    # ── Adjustment banner + edit checkbox ─────────────────────────────────
+    st.markdown(adjust_banner_html(selected_type), unsafe_allow_html=True)
+    edit_col, _ = st.columns([2, 5])
+    with edit_col:
+        manual_edit = st.checkbox("✏️ Edit my inputs", value=False)
+
+    household_row = editable_household(base_row, manual_edit)
+    household_df = row_to_frame(household_row)
+
+    scored_df = calculate_resilience_score(
+        calculate_resilience_features(household_df),
+    )
+    scored_row = scored_df.iloc[0]
+
+    # ── Fill the hero slot now that scores are ready ───────────────────────
+    hero_slot.markdown(gauge_hero_html(scored_row), unsafe_allow_html=True)
+
     # Input validation notices
     input_warnings = validate_household_inputs(scored_row)
     if input_warnings:
@@ -660,47 +679,9 @@ if True:  # scope block
             f"⚠️ Input notices ({len(input_warnings)})"
             " — some values may affect result quality"
         )
-        with st.expander(notice_label, expanded=True):
+        with st.expander(notice_label, expanded=False):
             for w in input_warnings:
                 st.warning(w)
-
-    # Gauge card (server-side arc computation)
-    st.markdown(
-        gauge_html(
-            float(scored_row["resilience_score"]),
-            str(scored_row["risk_band"]),
-        ),
-        unsafe_allow_html=True,
-    )
-
-    # Key metric cards
-    mc = st.columns(4)
-    mc[0].metric(
-        "Resilience score",
-        f"{scored_row['resilience_score']:.1f} / 100",
-    )
-    mc[1].metric(
-        "Emergency runway",
-        f"{scored_row['emergency_runway_months']:.1f} months",
-    )
-    mc[2].metric(
-        "Monthly surplus",
-        money(float(scored_row["monthly_surplus"])),
-    )
-    mc[3].metric(
-        "Debt service ratio",
-        percent(float(scored_row["debt_service_ratio"])),
-    )
-
-    rc = st.columns(2)
-    rc[0].metric(
-        "Essential spending ratio",
-        percent(float(scored_row["essential_spending_ratio"])),
-    )
-    rc[1].metric(
-        "Fixed cost burden",
-        percent(float(scored_row["fixed_cost_burden"])),
-    )
 
     # Score driver bars
     st.markdown(driver_bars_html(scored_row), unsafe_allow_html=True)
@@ -1060,43 +1041,74 @@ if True:  # scope block
     col_is, col_isnot = st.columns(2)
 
     _IS_ITEMS = [
-        ("🎓", "An educational tool",
-         "Designed to prompt reflection about financial resilience "
-         "and scam awareness — not to replace professional advice."),
-        ("🔍", "A scenario explorer",
-         "Model what happens if your rent rises, income drops, or an "
-         "unexpected bill arrives — see the impact before it happens."),
-        ("🛡️", "A scam-awareness checker",
-         "Apply transparent rule-based checks to suspicious messages "
-         "or payment requests and understand the warning signs."),
-        ("📊", "Explainable and transparent",
-         "Every score, red flag, and action prompt is explained in "
-         "plain English. No black-box decisions."),
-        ("🔒", "Privacy-safe",
-         "Uses synthetic demo data by default. Nothing you enter is "
-         "stored, sent anywhere, or used for any other purpose."),
+        (
+            "🎓",
+            "An educational tool",
+            "Designed to prompt reflection about financial resilience "
+            "and scam awareness — not to replace professional advice.",
+        ),
+        (
+            "🔍",
+            "A scenario explorer",
+            "Model what happens if your rent rises, income drops, or an "
+            "unexpected bill arrives — see the impact before it happens.",
+        ),
+        (
+            "🛡️",
+            "A scam-awareness checker",
+            "Apply transparent rule-based checks to suspicious messages "
+            "or payment requests and understand the warning signs.",
+        ),
+        (
+            "📊",
+            "Explainable and transparent",
+            "Every score, red flag, and action prompt is explained in "
+            "plain English. No black-box decisions.",
+        ),
+        (
+            "🔒",
+            "Privacy-safe",
+            "Uses synthetic demo data by default. Nothing you enter is "
+            "stored, sent anywhere, or used for any other purpose.",
+        ),
     ]
 
     _ISNOT_ITEMS = [
-        ("❌", "Not financial advice",
-         "Outputs are illustrative only. Always consult a qualified, "
-         "FCA-regulated adviser for personal financial decisions."),
-        ("❌", "Not debt or credit advice",
-         "It cannot recommend debt management plans, consolidation "
-         "loans, or any credit products."),
-        ("❌", "Not a guaranteed scam detector",
-         "It may miss real scams and flag legitimate messages. "
-         "Never rely on it as your only check."),
-        ("❌", "Not a lending or decisioning tool",
-         "Scores are for educational reflection only — not credit "
-         "scoring, affordability assessment, or underwriting."),
-        ("❌", "Not based on your real bank data",
-         "Demo profiles are fictional. For your own numbers, use the "
-         "\"Manually edit inputs\" toggle in the sidebar."),
+        (
+            "❌",
+            "Not financial advice",
+            "Outputs are illustrative only. Always consult a qualified, "
+            "FCA-regulated adviser for personal financial decisions.",
+        ),
+        (
+            "❌",
+            "Not debt or credit advice",
+            "It cannot recommend debt management plans, consolidation "
+            "loans, or any credit products.",
+        ),
+        (
+            "❌",
+            "Not a guaranteed scam detector",
+            "It may miss real scams and flag legitimate messages. "
+            "Never rely on it as your only check.",
+        ),
+        (
+            "❌",
+            "Not a lending or decisioning tool",
+            "Scores are for educational reflection only — not credit "
+            "scoring, affordability assessment, or underwriting.",
+        ),
+        (
+            "❌",
+            "Not based on your real bank data",
+            "Demo profiles are fictional. For your own numbers, use the "
+            '"Manually edit inputs" toggle in the sidebar.',
+        ),
     ]
 
-    def _info_card(icon: str, title: str, body: str,
-                   bg: str, border: str, fg: str) -> str:
+    def _info_card(
+        icon: str, title: str, body: str, bg: str, border: str, fg: str
+    ) -> str:
         return (
             f'<div style="background:{bg};border:1px solid {border};'
             f"border-radius:12px;padding:14px 16px;margin-bottom:8px;"
@@ -1120,8 +1132,7 @@ if True:  # scope block
         )
         for icon, title, body in _IS_ITEMS:
             st.markdown(
-                _info_card(icon, title, body,
-                           "#F0FBF7", "#A7F3D0", "#0A6B4A"),
+                _info_card(icon, title, body, "#F0FBF7", "#A7F3D0", "#0A6B4A"),
                 unsafe_allow_html=True,
             )
 
@@ -1134,18 +1145,19 @@ if True:  # scope block
         )
         for icon, title, body in _ISNOT_ITEMS:
             st.markdown(
-                _info_card(icon, title, body,
-                           "#FFF5F5", "#FECACA", "#9B2220"),
+                _info_card(icon, title, body, "#FFF5F5", "#FECACA", "#9B2220"),
                 unsafe_allow_html=True,
             )
 
     # ── Step-by-step guide ───────────────────────────────────────────────
-    section_header("🗺️", "How to use MoneyBuffer UK",
-                   "A quick walkthrough of each section.")
+    section_header(
+        "🗺️", "How to use MoneyBuffer UK", "A quick walkthrough of each section."
+    )
 
     _STEPS = [
         (
-            "1", "#00A87A",
+            "1",
+            "#00A87A",
             "Choose a household profile",
             "Sidebar — Demo household selector",
             "Pick one of the six fictional UK household archetypes from "
@@ -1153,31 +1165,37 @@ if True:  # scope block
             "High Debt Burden, Irregular Income Worker, Low Savings "
             "Renter, or Mortgage Rate Shock. Each represents a realistic "
             "financial situation. To explore your own numbers, tick "
-            "\"Manually edit inputs\" and adjust each field.",
-            ["Stable Household — solid buffer, low debt",
-             "Payday Pressure — income barely covers essentials",
-             "High Debt Burden — large debt repayments eating income",
-             "Irregular Income Worker — variable monthly earnings",
-             "Low Savings Renter — renting with minimal emergency fund",
-             "Mortgage Rate Shock — homeowner hit by rate rise"],
+            '"Manually edit inputs" and adjust each field.',
+            [
+                "Stable Household — solid buffer, low debt",
+                "Payday Pressure — income barely covers essentials",
+                "High Debt Burden — large debt repayments eating income",
+                "Irregular Income Worker — variable monthly earnings",
+                "Low Savings Renter — renting with minimal emergency fund",
+                "Mortgage Rate Shock — homeowner hit by rate rise",
+            ],
         ),
         (
-            "2", "#00A87A",
+            "2",
+            "#00A87A",
             "Check financial health",
             "Tab: Financial Health Check",
             "See a 0–100 resilience score for the selected household, "
             "an emergency runway (months of essential spending covered "
             "by savings), monthly surplus, and five score-driver bars. "
             "Green is healthy, amber is a watch signal, red needs "
-            "attention. The \"How to improve\" card shows what change "
+            'attention. The "How to improve" card shows what change '
             "would move the household to the next band.",
-            ["Score ≥ 75 = Stable · 55–74 = Watch · "
-             "35–54 = Vulnerable · < 35 = Critical",
-             "Emergency runway < 1 month is a key risk signal",
-             "Debt service ratio > 20 % of income is a warning sign"],
+            [
+                "Score ≥ 75 = Stable · 55–74 = Watch · "
+                "35–54 = Vulnerable · < 35 = Critical",
+                "Emergency runway < 1 month is a key risk signal",
+                "Debt service ratio > 20 % of income is a warning sign",
+            ],
         ),
         (
-            "3", "#F5A623",
+            "3",
+            "#F5A623",
             "Simulate a bill shock",
             "Tab: Bill Shock Simulator",
             "Apply a stress scenario — income drop, rent increase, "
@@ -1186,31 +1204,37 @@ if True:  # scope block
             "chart show how resilience, monthly surplus, and emergency "
             "runway change. The savings runway projection shows how many "
             "months before savings run out under the stressed scenario.",
-            ["Income drop 20 % / 40 % / 100 % (e.g. job loss)",
-             "Rent or mortgage increase 5 % / 10 % / 15 %",
-             "Energy bill increase £50 / £100 / £150 per month",
-             "Unexpected one-off expense £300 – £3,000",
-             "Compound scenario: combine multiple shocks at once"],
+            [
+                "Income drop 20 % / 40 % / 100 % (e.g. job loss)",
+                "Rent or mortgage increase 5 % / 10 % / 15 %",
+                "Energy bill increase £50 / £100 / £150 per month",
+                "Unexpected one-off expense £300 – £3,000",
+                "Compound scenario: combine multiple shocks at once",
+            ],
         ),
         (
-            "4", "#9B2220",
+            "4",
+            "#9B2220",
             "Check a suspicious message",
             "Tab: Scam Checker",
             "Paste any message, payment request, or email text into the "
-            "text box and click \"Check scam risk\". The tool applies "
+            'text box and click "Check scam risk". The tool applies '
             "eight transparent rule-based checks — urgency language, "
             "secrecy requests, suspicious links, risky payment methods, "
             "impersonation cues, and more — and returns a risk score "
             "with a plain-English explanation of each flag. "
             "Always treat the result as a prompt to pause and verify, "
             "never as a guarantee.",
-            ["Low (0–20): fewer warning signs detected",
-             "Medium (21–45): be cautious, verify independently",
-             "High (46–70): significant red flags — do not act yet",
-             "Severe (71–100): stop, do not pay or respond"],
+            [
+                "Low (0–20): fewer warning signs detected",
+                "Medium (21–45): be cautious, verify independently",
+                "High (46–70): significant red flags — do not act yet",
+                "Severe (71–100): stop, do not pay or respond",
+            ],
         ),
         (
-            "5", "#7C3AED",
+            "5",
+            "#7C3AED",
             "Review the action plan",
             "Tab: Action Plan",
             "Based on the financial health score and (optionally) the "
@@ -1220,18 +1244,20 @@ if True:  # scope block
             "UK support resource links (StepChange, MoneyHelper, Action "
             "Fraud, etc.) are shown where relevant. You can download a "
             "PDF or text summary for reference.",
-            ["Urgent — address these signals first",
-             "Medium-term — build resilience over weeks or months",
-             "Strengths — what is already working well",
-             "Support links — official UK organisations relevant "
-             "to the signals detected"],
+            [
+                "Urgent — address these signals first",
+                "Medium-term — build resilience over weeks or months",
+                "Strengths — what is already working well",
+                "Support links — official UK organisations relevant "
+                "to the signals detected",
+            ],
         ),
     ]
 
     for step_num, color, title, location, desc, bullets in _STEPS:
         bullet_html = "".join(
             f'<div style="display:flex;gap:8px;align-items:flex-start;'
-            f"padding:4px 0;font-size:12.5px;color:#3D5A4E;line-height:1.5\">"
+            f'padding:4px 0;font-size:12.5px;color:#3D5A4E;line-height:1.5">'
             f'<span style="color:{color};font-weight:700;flex-shrink:0">'
             f"›</span><span>{b}</span></div>"
             for b in bullets
