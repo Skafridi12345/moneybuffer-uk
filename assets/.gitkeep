@@ -1,0 +1,3 @@
+# Place logo_moneybuffer.png in this directory.
+# The Streamlit app references assets/logo_moneybuffer.png
+# and falls back gracefully to an inline SVG if the file is absent.

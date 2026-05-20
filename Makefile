@@ -1,0 +1,21 @@
+.PHONY: install run test lint format typecheck check
+
+install:
+	pip install -e ".[dev]"
+
+run:
+	streamlit run app/streamlit_app.py
+
+test:
+	pytest
+
+lint:
+	ruff check .
+
+format:
+	ruff format .
+
+typecheck:
+	mypy src
+
+check: lint typecheck test

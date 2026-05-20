@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Streamlit
+.streamlit/secrets.toml
+*.log
+
+# Notebooks
+.ipynb_checkpoints/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local data outputs
+data/synthetic/*.csv
+data/synthetic/*.parquet
+data/synthetic/*.json
