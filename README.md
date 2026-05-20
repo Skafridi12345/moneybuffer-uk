@@ -1,5 +1,9 @@
 # MoneyBuffer UK — Financial Resilience & Scam Risk Checker
 
+**Created by:** Muhammad Shoaib Safridi  
+**Freelance / collaboration enquiries:** [safridi@gmail.com](mailto:safridi@gmail.com)  
+**GitHub:** [Skafridi12345](https://github.com/Skafridi12345)
+
 MoneyBuffer UK is an educational public-interest fintech tool that helps households understand their financial buffer, simulate bill shocks, and identify scam-risk warning signs.
 
 The project is designed as an explainable Streamlit MVP. It uses synthetic household data, transparent scoring rules, and cautious educational wording so that users can explore financial pressure and scam-risk signals without the app making regulated recommendations.
