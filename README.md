@@ -8,6 +8,8 @@ MoneyBuffer UK is an educational public-interest fintech tool that helps househo
 
 The project is designed as an explainable Streamlit MVP. It uses synthetic household data, transparent scoring rules, and cautious educational wording so that users can explore financial pressure and scam-risk signals without the app making regulated recommendations.
 
+For a deeper technical walkthrough of the architecture, tools, testing strategy, and engineering decisions, see [TECHNICAL_README.md](TECHNICAL_README.md).
+
 ## Disclaimer
 
 MoneyBuffer UK is an educational prototype only. It is not financial advice, not debt advice, not investment advice, not a lending tool, not a credit decisioning system, and not a guaranteed scam detector.
