@@ -396,6 +396,87 @@ hr {{
     letter-spacing: .07em;
 }}
 
+/* ── Mobile / responsive ─────────────────────────────────────────────────── */
+@media (max-width: 768px) {{
+  /* Reduce side padding on small screens */
+  .block-container {{
+    padding-left: 0.6rem !important;
+    padding-right: 0.6rem !important;
+    padding-top: 0.75rem !important;
+  }}
+
+  /* Nav bar: scroll horizontally — hide scrollbar for cleanliness */
+  .mb-nav-wrap {{
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: 6px !important;
+    scrollbar-width: none !important;
+  }}
+  .mb-nav-wrap::-webkit-scrollbar {{ display: none !important; }}
+  .mb-nav-bar {{
+    min-width: max-content !important;
+  }}
+  .mb-nav-bar a {{
+    padding: 0 14px !important;
+    font-size: 12.5px !important;
+    height: 36px !important;
+  }}
+
+  /* Hero gauge card: gauge centred on top, KPI grid below */
+  .mb-hero-card {{
+    grid-template-columns: 1fr !important;
+    gap: 16px 0 !important;
+    padding: 18px 16px !important;
+  }}
+  /* The thin vertical divider becomes a horizontal rule */
+  .mb-hero-divider {{
+    height: 1px !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    align-self: auto !important;
+  }}
+
+  /* Comparison cards: stack before/after vertically */
+  .mb-comparison-grid {{
+    grid-template-columns: 1fr !important;
+  }}
+
+  /* Scam card: allow inner blocks to stack */
+  .mb-scam-card {{
+    gap: 14px !important;
+  }}
+  .mb-scam-divider {{
+    display: none !important;
+  }}
+
+  /* Section header: tighten spacing */
+  .mb-section-sep {{
+    margin: 2rem 0 1.25rem !important;
+  }}
+
+  /* Streamlit horizontal blocks: allow wrapping so wide layouts reflow */
+  [data-testid="stHorizontalBlock"] {{
+    flex-wrap: wrap !important;
+  }}
+  /* Individual columns: allow shrinking below their natural min-width */
+  [data-testid="stColumn"] {{
+    min-width: 0 !important;
+    flex-shrink: 1 !important;
+  }}
+}}
+
+@media (max-width: 480px) {{
+  /* Extra-small phones (iPhone SE etc.) */
+  .mb-nav-bar a {{
+    padding: 0 11px !important;
+    font-size: 12px !important;
+  }}
+  .mb-hero-card {{
+    border-radius: 14px !important;
+    padding: 16px 12px !important;
+  }}
+}}
+
 /* ── Streamlit footer ───────────────────────────────────────────────────── */
 footer {{ display: none !important; }}
 #MainMenu {{ visibility: hidden; }}
@@ -945,7 +1026,8 @@ def gauge_hero_html(scored_row: Any) -> str:
     )
 
     return (
-        '<div style="background:#fff;border:1px solid #DDE8E3;'
+        '<div class="mb-hero-card" style="background:#fff;'
+        "border:1px solid #DDE8E3;"
         "border-radius:18px;padding:24px 28px;margin-bottom:18px;"
         "display:grid;"
         "grid-template-columns:auto 1px 1fr;"
@@ -992,11 +1074,13 @@ def gauge_hero_html(scored_row: Any) -> str:
         "</div>"
         "</div>"
         # ── Vertical divider ──────────────────────────────────────────────
-        '<div style="height:100%;min-height:130px;'
+        '<div class="mb-hero-divider" style="height:100%;min-height:130px;'
         'background:#DDE8E3;align-self:stretch"></div>'
         # ── Right: 2×2 KPI grid ───────────────────────────────────────────
-        '<div style="display:grid;grid-template-columns:1fr 1fr;'
-        'gap:10px;align-content:center">' + tiles + "</div>"
+        '<div class="mb-hero-kpi-grid" style="display:grid;'
+        'grid-template-columns:1fr 1fr;gap:10px;align-content:center">'
+        + tiles
+        + "</div>"
         "</div>"
     )
 
@@ -1345,7 +1429,7 @@ def comparison_cards_html(comparison: Any) -> str:
     )
 
     return (
-        '<div style="display:grid;'
+        '<div class="mb-comparison-grid" style="display:grid;'
         "grid-template-columns:1fr auto 1fr;gap:12px;"
         'align-items:start;margin-bottom:16px">'
         + base_card
@@ -1392,7 +1476,8 @@ def scam_risk_card_html(scam_result: dict) -> str:
     flag_word = "flag" if n_flags == 1 else "flags"
 
     return (
-        f'<div style="background:{bg_style};border:1px solid {border};'
+        f'<div class="mb-scam-card" style="background:{bg_style};'
+        f"border:1px solid {border};"
         f"border-radius:16px;padding:20px 26px;margin-bottom:20px;"
         f"display:flex;align-items:center;gap:22px;flex-wrap:wrap;"
         f'box-shadow:0 2px 14px rgba(0,0,0,0.09)">'
@@ -1403,8 +1488,8 @@ def scam_risk_card_html(scam_result: dict) -> str:
         f'margin-top:3px;text-transform:uppercase;letter-spacing:0.06em">'
         f"Risk score / 100</div>"
         f"</div>"
-        f'<div style="width:1px;height:66px;background:{fg};opacity:0.18;'
-        f'flex-shrink:0"></div>'
+        f'<div class="mb-scam-divider" style="width:1px;height:66px;'
+        f'background:{fg};opacity:0.18;flex-shrink:0"></div>'
         f'<div style="flex:1;min-width:150px">'
         f'<div style="font-size:20px;font-weight:700;color:{fg};'
         f'letter-spacing:-0.02em;margin-bottom:4px">{band} Risk</div>'

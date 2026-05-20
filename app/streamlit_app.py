@@ -657,9 +657,7 @@ if True:  # scope block
 
     # ── Adjustment banner + edit checkbox ─────────────────────────────────
     st.markdown(adjust_banner_html(selected_type), unsafe_allow_html=True)
-    edit_col, _ = st.columns([2, 5])
-    with edit_col:
-        manual_edit = st.checkbox("✏️ Edit my inputs", value=False)
+    manual_edit = st.checkbox("✏️ Edit my inputs", value=False)
 
     household_row = editable_household(base_row, manual_edit)
     household_df = row_to_frame(household_row)
