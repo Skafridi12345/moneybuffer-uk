@@ -2,7 +2,8 @@
 
 **Author:** Muhammad Shoaib Safridi  
 **Contact:** [safridi@gmail.com](mailto:safridi@gmail.com)  
-**GitHub:** [Skafridi12345](https://github.com/Skafridi12345)
+**GitHub:** [Skafridi12345](https://github.com/Skafridi12345)  
+**Live app:** [moneybuffer-uk.streamlit.app](https://moneybuffer-uk.streamlit.app/)
 
 ## 1. Technical Summary
 
@@ -396,4 +397,3 @@ Potential next steps:
 - improved model governance and fairness review
 - downloadable scenario comparison reports
 - responsible AI review before any real user-data collection
-
