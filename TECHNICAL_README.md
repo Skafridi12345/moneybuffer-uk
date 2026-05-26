@@ -2,7 +2,7 @@
 
 **Author:** Muhammad Shoaib Safridi  
 **Contact:** [safridi@gmail.com](mailto:safridi@gmail.com)  
-**GitHub:** [Skafridi12345](https://github.com/Skafridi12345)  
+**GitHub:** [drmshoaib](https://github.com/drmshoaib)<br>
 **Live app:** [moneybuffer-uk.streamlit.app](https://moneybuffer-uk.streamlit.app/)
 
 ## 1. Technical Summary

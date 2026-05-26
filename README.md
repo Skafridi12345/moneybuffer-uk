@@ -2,8 +2,13 @@
 
 **Created by:** Muhammad Shoaib Safridi  
 **Freelance / collaboration enquiries:** [safridi@gmail.com](mailto:safridi@gmail.com)  
-**GitHub:** [Skafridi12345](https://github.com/Skafridi12345)  
+**GitHub:** [drmshoaib](https://github.com/drmshoaib)<br>
 **Live app:** [moneybuffer-uk.streamlit.app](https://moneybuffer-uk.streamlit.app/)
+
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
+[![Licence: not selected](https://img.shields.io/badge/licence-not%20selected-lightgrey.svg)](#licence)
+[![Tests: 148](https://img.shields.io/badge/tests-148-blue.svg)](tests/)
+[![Streamlit](https://img.shields.io/badge/streamlit-app-FF4B4B.svg)](https://streamlit.io/)
 
 MoneyBuffer UK is an educational public-interest fintech tool that helps households understand their financial buffer, simulate bill shocks, and identify scam-risk warning signs.
 
@@ -65,6 +70,18 @@ Current Streamlit screenshots:
 ![Scam Checker](screenshots/scam_checker.png)
 
 ![Action Plan](screenshots/action_plan.png)
+
+## Workflow
+
+```mermaid
+flowchart TD
+    A["Synthetic household, transaction, and scam examples"] --> B["Feature derivation and input validation"]
+    B --> C["Financial resilience score and risk bands"]
+    C --> D["Bill shock and income-stress simulations"]
+    D --> E["Scam red-flag rules and optional ML check"]
+    E --> F["Cross-feature alert and educational action plan"]
+    F --> G["Streamlit app, PDF report, and technical docs"]
+```
 
 ## Technical Architecture
 
@@ -216,7 +233,7 @@ For a full explanation of why synthetic data is used, what the archetypes cover,
 Clone the repository:
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/moneybuffer-uk.git
+git clone https://github.com/drmshoaib/moneybuffer-uk.git
 cd moneybuffer-uk
 ```
 
